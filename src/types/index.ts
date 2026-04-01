@@ -46,3 +46,27 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
 }
+
+export interface ForumPost {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar: string;
+  title: string;
+  content: string;
+  category: 'general' | 'food' | 'transport' | 'investment' | 'lifestyle';
+  createdAt: Date;
+  likes: number;
+  comments: ForumComment[];
+  isPinned: boolean;
+  isAI?: boolean;
+}
+
+export interface ForumComment {
+  id: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  createdAt: Date;
+  likes: number;
+}
