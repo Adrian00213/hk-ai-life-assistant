@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { HomeScreen, TransportScreen, InfoScreen, ChatScreen, SettingsScreen, ShopScreen } from './src/screens';
+import { HomeScreen, TransportScreen, InfoScreen, ChatScreen, SettingsScreen, ShopScreen, ServicesScreen } from './src/screens';
 import { colors } from './src/theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -60,6 +60,14 @@ export default function App() {
             options={{
               tabBarLabel: '直播',
               tabBarIcon: ({ focused }) => <TabIcon emoji="📺" focused={focused} />,
+            }}
+          />
+          <Tab.Screen
+            name="Services"
+            component={ServicesScreen}
+            options={{
+              tabBarLabel: '服務',
+              tabBarIcon: ({ focused }) => <TabIcon emoji="🛍️" focused={focused} />,
             }}
           />
           <Tab.Screen
