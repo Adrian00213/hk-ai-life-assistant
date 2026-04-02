@@ -1,5 +1,17 @@
 export { fetchWeather, getAirQualityAdvice } from './weatherApi';
 export { fetchMTRArrival, fetchBusArrival, refreshRoutes, POPULAR_ROUTES, getLineColor, MTR_LINE_COLORS } from './transportApi';
 export { aiService, AIService } from './aiService';
-export { fetchHKOWarnings, fetchHKNews, fetchGoldPrice, fetchExchangeRates, fetchMarketIndices, fetchAirQuality } from './hkInfoApi';
+export { fetchHKOWarnings, fetchGoldPrice, fetchExchangeRates, fetchMarketIndices, fetchAirQuality } from './hkInfoApi';
 export { forumService, ForumService } from './forumService';
+export { fetchTyphoonInfo, fetchRainWarning, fetchHolidayForecasts, getDailyWeatherAlerts } from './weatherAlertsApi';
+export { fetchHKNews, fetchPropertyTransactions, fetchUpcomingIPOs, formatHKPrice, formatSize } from './newsApi';
+export { 
+  saveNotificationPreferences, 
+  loadNotificationPreferences, 
+  shouldSendDailyWeatherNotification,
+  generateDailyWeatherNotification,
+  sendNotification,
+  getNotificationPermissionStatus,
+  requestNotificationPermission 
+} from './notificationService';
+export { VoiceInputService, voiceInputService } from './voiceInputService';

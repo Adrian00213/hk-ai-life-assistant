@@ -1,10 +1,11 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AIChatBubble, TypingBubble } from '../components';
 import { colors, spacing, borderRadius } from '../theme/colors';
 import { useStore } from '../store';
 import { aiService } from '../services';
+import { VoiceInputService, voiceInputService } from '../services/voiceInputService';
 
 const quickQuestions = [
   '今日天氣點呀？',
@@ -17,24 +18,68 @@ export const ChatScreen: React.FC = () => {
   const { messages, addMessage } = useStore();
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState('');
   const flatListRef = useRef<FlatList>(null);
+  const voiceServiceRef = useRef<VoiceInputService | null>(null);
+
+  useEffect(() => {
+    // Initialize voice input service
+    voiceServiceRef.current = new VoiceInputService({
+      lang: 'zh-HK',
+      continuous: false,
+      interimResults: true,
+    });
+
+    voiceServiceRef.current.onStart(() => {
+      setIsListening(true);
+    });
+
+    voiceServiceRef.current.onEnd(() => {
+      setIsListening(false);
+      setInterimTranscript('');
+    });
+
+    voiceServiceRef.current.onResult((transcript, isFinal) => {
+      if (isFinal) {
+        setInputText(transcript);
+        setInterimTranscript('');
+      } else {
+        setInterimTranscript(transcript);
+      }
+    });
+
+    voiceServiceRef.current.onError((error) => {
+      console.error('Voice input error:', error);
+      setIsListening(false);
+      setInterimTranscript('');
+    });
+
+    return () => {
+      if (voiceServiceRef.current) {
+        voiceServiceRef.current.stop();
+      }
+    };
+  }, []);
 
   const handleSend = useCallback(async () => {
-    if (!inputText.trim()) return;
+    const textToSend = inputText.trim() || interimTranscript.trim();
+    if (!textToSend) return;
     
     const userMessage = {
       id: Date.now().toString(),
       role: 'user' as const,
-      content: inputText.trim(),
+      content: textToSend,
       timestamp: new Date(),
     };
     
     addMessage(userMessage);
     setInputText('');
+    setInterimTranscript('');
     setIsTyping(true);
     
     try {
-      const response = await aiService.sendMessage(inputText.trim());
+      const response = await aiService.sendMessage(textToSend);
       const aiResponse = {
         id: (Date.now() + 1).toString(),
         role: 'assistant' as const,
@@ -54,11 +99,21 @@ export const ChatScreen: React.FC = () => {
     } finally {
       setIsTyping(false);
     }
-  }, [inputText, addMessage]);
+  }, [inputText, interimTranscript, addMessage]);
+
+  const handleVoiceInput = () => {
+    if (!voiceServiceRef.current?.isAvailable()) {
+      alert('你的瀏覽器不支援語音輸入');
+      return;
+    }
+    voiceServiceRef.current.toggle();
+  };
 
   const handleQuickQuestion = (question: string) => {
     setInputText(question);
   };
+
+  const displayText = inputText || interimTranscript;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -106,26 +161,34 @@ export const ChatScreen: React.FC = () => {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         <View style={styles.inputContainer}>
-          <TouchableOpacity style={styles.micButton}>
-            <Text style={styles.micIcon}>🎤</Text>
+          <TouchableOpacity 
+            style={[styles.micButton, isListening && styles.micButtonActive]}
+            onPress={handleVoiceInput}
+          >
+            <Text style={styles.micIcon}>{isListening ? '🔴' : '🎤'}</Text>
           </TouchableOpacity>
           <TextInput
             style={styles.input}
             placeholder="問我任何關於香港嘅嘢..."
             placeholderTextColor={colors.textMuted}
-            value={inputText}
+            value={displayText}
             onChangeText={setInputText}
             multiline
             maxLength={500}
           />
           <TouchableOpacity
-            style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+            style={[styles.sendButton, !displayText.trim() && styles.sendButtonDisabled]}
             onPress={handleSend}
-            disabled={!inputText.trim()}
+            disabled={!displayText.trim()}
           >
             <Text style={styles.sendIcon}>➤</Text>
           </TouchableOpacity>
         </View>
+        {isListening && (
+          <View style={styles.listeningIndicator}>
+            <Text style={styles.listeningText}>🎤 緊聽緊... 請說話</Text>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -223,6 +286,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: spacing.xs,
   },
+  micButtonActive: {
+    backgroundColor: colors.error + '40',
+  },
   micIcon: {
     fontSize: 18,
   },
@@ -248,5 +314,18 @@ const styles = StyleSheet.create({
   sendIcon: {
     color: colors.text,
     fontSize: 18,
+  },
+  listeningIndicator: {
+    backgroundColor: colors.error + '20',
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+  },
+  listeningText: {
+    color: colors.error,
+    fontSize: 13,
+    fontWeight: '500',
   },
 });

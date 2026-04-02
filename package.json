@@ -1,6 +1,7 @@
 {
   "name": "hk-ai-life-assistant",
   "version": "1.0.0",
+  "homepage": "https://adrian00213.github.io/hk-ai-life-assistant",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",

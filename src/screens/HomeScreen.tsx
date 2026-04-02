@@ -1,39 +1,61 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WeatherCard } from '../components';
-import { colors, spacing } from '../theme/colors';
+import { colors, spacing, borderRadius } from '../theme/colors';
 import { useStore } from '../store';
-import { fetchWeather, getAirQualityAdvice } from '../services';
+import { fetchWeather, getAirQualityAdvice } from '../services/weatherApi';
+import { fetchTyphoonInfo, fetchRainWarning, fetchHolidayForecasts, getDailyWeatherAlerts } from '../services/weatherAlertsApi';
+import { fetchHKNews } from '../services/newsApi';
+import { WeatherData } from '../types';
 
 export const HomeScreen: React.FC = () => {
   const { weather, setWeather } = useStore();
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [news, setNews] = useState<any[]>([]);
+  const [typhoon, setTyphoon] = useState<any>(null);
+  const [rainWarning, setRainWarning] = useState<any>(null);
+  const [holidays, setHolidays] = useState<any[]>([]);
 
-  const loadWeather = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
       setError(null);
-      const data = await fetchWeather();
-      setWeather(data);
+      
+      // Fetch weather
+      const weatherData = await fetchWeather();
+      setWeather(weatherData);
+      
+      // Fetch weather alerts in parallel
+      const [typhoonData, rainData, holidayData, newsData] = await Promise.all([
+        fetchTyphoonInfo(),
+        fetchRainWarning(),
+        fetchHolidayForecasts(),
+        fetchHKNews(),
+      ]);
+      
+      setTyphoon(typhoonData);
+      setRainWarning(rainData);
+      setHolidays(holidayData);
+      setNews(newsData.slice(0, 3)); // Top 3 news
     } catch (err) {
-      console.error('Failed to fetch weather:', err);
-      setError('無法載入天氣數據');
+      console.error('Failed to fetch data:', err);
+      setError('無法載入部分數據');
     } finally {
       setLoading(false);
     }
   }, [setWeather]);
 
   useEffect(() => {
-    loadWeather();
-  }, [loadWeather]);
+    loadData();
+  }, [loadData]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadWeather();
+    await loadData();
     setRefreshing(false);
-  }, [loadWeather]);
+  }, [loadData]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -72,6 +94,31 @@ export const HomeScreen: React.FC = () => {
           />
         }
       >
+        {/* Emergency Alerts */}
+        {(typhoon || rainWarning) && (
+          <View style={styles.alertSection}>
+            {typhoon && (
+              <TouchableOpacity style={[styles.alertCard, styles.typhoonAlert]}>
+                <Text style={styles.alertEmoji}>🌪</Text>
+                <View style={styles.alertContent}>
+                  <Text style={styles.alertTitle}>颱風「{typhoon.name}」現正生效</Text>
+                  <Text style={styles.alertDesc}>{typhoon.currentPosition?.description}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            {rainWarning && (
+              <TouchableOpacity style={[styles.alertCard, styles.rainAlert]}>
+                <Text style={styles.alertEmoji}>🌧️</Text>
+                <View style={styles.alertContent}>
+                  <Text style={styles.alertTitle}>{rainWarning.type === 'AMBER' ? '黃色' : rainWarning.type === 'RED' ? '紅色' : '黑色'}暴雨警告生效</Text>
+                  <Text style={styles.alertDesc}>發出時間：{rainWarning.issuedTime}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {/* Quick Actions */}
         <View style={styles.quickActions}>
           <Text style={styles.sectionTitle}>快捷功能</Text>
           <View style={styles.actionGrid}>
@@ -84,16 +131,17 @@ export const HomeScreen: React.FC = () => {
               <Text style={styles.actionText}>搵食</Text>
             </View>
             <View style={styles.actionItem}>
-              <Text style={styles.actionEmoji}>🌳</Text>
-              <Text style={styles.actionText}>行山</Text>
+              <Text style={styles.actionEmoji}>📰</Text>
+              <Text style={styles.actionText}>資訊</Text>
             </View>
             <View style={styles.actionItem}>
-              <Text style={styles.actionEmoji}>☂️</Text>
-              <Text style={styles.actionText}>帶遮</Text>
+              <Text style={styles.actionEmoji}>💬</Text>
+              <Text style={styles.actionText}>論壇</Text>
             </View>
           </View>
         </View>
         
+        {/* Weather Card */}
         {loading ? (
           <View style={styles.loadingCard}>
             <Text style={styles.loadingText}>正在載入天氣數據...</Text>
@@ -107,43 +155,91 @@ export const HomeScreen: React.FC = () => {
           <WeatherCard weather={weather} />
         ) : null}
         
+        {/* Weather Alerts based on conditions */}
+        {weather && (
+          <View style={styles.alertsSection}>
+            <Text style={styles.sectionTitle}>天氣提示</Text>
+            {getDailyWeatherAlerts(weather).map((alert, index) => (
+              <View key={index} style={styles.tipCard}>
+                <Text style={styles.alertText}>{alert}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+        
+        {/* Holiday Forecast */}
+        <View style={styles.holidaySection}>
+          <Text style={styles.sectionTitle}>假期天氣預測</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {holidays.map((holiday, index) => (
+              <View key={index} style={styles.holidayCard}>
+                <Text style={styles.holidayName}>{holiday.name}</Text>
+                <Text style={styles.holidayDate}>{holiday.date}</Text>
+                <Text style={styles.holidayWeather}>{holiday.weather}</Text>
+                <Text style={styles.holidayTemp}>{holiday.tempRange.min}~{holiday.tempRange.max}°</Text>
+                <Text style={styles.holidayRec}>{holiday.recommendation}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+        
+        {/* Latest News */}
+        <View style={styles.newsSection}>
+          <Text style={styles.sectionTitle}>最新資訊</Text>
+          {news.map((item) => (
+            <TouchableOpacity key={item.id} style={styles.newsCard}>
+              <View style={styles.newsHeader}>
+                <View style={[styles.newsBadge, { backgroundColor: getCategoryColor(item.category) }]}>
+                  <Text style={styles.newsBadgeText}>{getCategoryLabel(item.category)}</Text>
+                </View>
+                {item.isHot && <Text style={styles.hotBadge}>🔥</Text>}
+              </View>
+              <Text style={styles.newsTitle}>{item.title}</Text>
+              <Text style={styles.newsSource}>{item.source} • {item.publishedAt}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        {/* Weather Health Tips */}
         <View style={styles.hongKongTips}>
-          <Text style={styles.sectionTitle}>香港日常</Text>
+          <Text style={styles.sectionTitle}>健康提示</Text>
           <View style={styles.tipCard}>
             <Text style={styles.tipEmoji}>💡</Text>
             <View style={styles.tipContent}>
-              <Text style={styles.tipTitle}>健康提示</Text>
+              <Text style={styles.tipTitle}>今日建議</Text>
               <Text style={styles.tipText}>
                 {weather ? getAirQualityAdvice(weather.aqi) : '空氣質量一般'}
               </Text>
             </View>
           </View>
-          
-          {weather && weather.humidity > 80 && (
-            <View style={[styles.tipCard, styles.warningCard]}>
-              <Text style={styles.tipEmoji}>💨</Text>
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>回南天警告</Text>
-                <Text style={styles.tipText}>濕度偏高，建議關閉窗戶，使用抽濕機防潮。</Text>
-              </View>
-            </View>
-          )}
-          
-          {weather && weather.uvIndex > 6 && (
-            <View style={[styles.tipCard, styles.warningCard]}>
-              <Text style={styles.tipEmoji}>☀️</Text>
-              <View style={styles.tipContent}>
-                <Text style={styles.tipTitle}>紫外線注意</Text>
-                <Text style={styles.tipText}>紫外線指數偏高，外出記得塗防曬！</Text>
-              </View>
-            </View>
-          )}
         </View>
         
         <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );
+};
+
+const getCategoryColor = (category: string): string => {
+  const colors: Record<string, string> = {
+    local: '#FF6B35',
+    finance: '#FFD93D',
+    property: '#4ADE80',
+    ipo: '#6ABFE4',
+    lifestyle: '#A0A0B0',
+  };
+  return colors[category] || '#A0A0B0';
+};
+
+const getCategoryLabel = (category: string): string => {
+  const labels: Record<string, string> = {
+    local: '本地',
+    finance: '財經',
+    property: '樓市',
+    ipo: 'IPO',
+    lifestyle: '生活',
+  };
+  return labels[category] || category;
 };
 
 const styles = StyleSheet.create({
@@ -167,6 +263,44 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  alertSection: {
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  alertCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  typhoonAlert: {
+    backgroundColor: '#FF6B3510',
+    borderWidth: 1,
+    borderColor: '#FF6B3540',
+  },
+  rainAlert: {
+    backgroundColor: '#6ABFE410',
+    borderWidth: 1,
+    borderColor: '#6ABFE440',
+  },
+  alertEmoji: {
+    fontSize: 28,
+    marginRight: spacing.md,
+  },
+  alertContent: {
+    flex: 1,
+  },
+  alertTitle: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  alertDesc: {
+    color: colors.textMuted,
+    fontSize: 13,
+    marginTop: 2,
   },
   quickActions: {
     paddingHorizontal: spacing.md,
@@ -227,20 +361,99 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-  hongKongTips: {
+  alertsSection: {
     paddingHorizontal: spacing.md,
     marginTop: spacing.md,
   },
   tipCard: {
     backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  alertText: {
+    color: colors.text,
+    fontSize: 14,
+  },
+  holidaySection: {
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.md,
+  },
+  holidayCard: {
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    marginRight: spacing.sm,
+    width: 160,
+  },
+  holidayName: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  holidayDate: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  holidayWeather: {
+    color: colors.primary,
+    fontSize: 13,
+    marginTop: spacing.sm,
+  },
+  holidayTemp: {
+    color: colors.accent,
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  holidayRec: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  newsSection: {
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.md,
+  },
+  newsCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.md,
     marginBottom: spacing.sm,
   },
-  warningCard: {
-    backgroundColor: colors.warning + '20',
+  newsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  newsBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  newsBadgeText: {
+    color: colors.text,
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  hotBadge: {
+    marginLeft: spacing.xs,
+  },
+  newsTitle: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '600',
+    lineHeight: 20,
+  },
+  newsSource: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  hongKongTips: {
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.md,
   },
   tipEmoji: {
     fontSize: 24,
