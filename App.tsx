@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { HomeScreen, TransportScreen, InfoScreen, ChatScreen, SettingsScreen, ShopScreen } from './src/screens';
+import { HomeScreen, TransportScreen, InfoScreen, ChatScreen, SettingsScreen, ShopScreen, DatingScreen } from './src/screens';
 import { colors } from './src/theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -68,6 +68,14 @@ export default function App() {
             options={{
               tabBarLabel: '金龍',
               tabBarIcon: ({ focused }) => <TabIcon emoji="🐉" focused={focused} />,
+            }}
+          />
+          <Tab.Screen
+            name="Dating"
+            component={DatingScreen}
+            options={{
+              tabBarLabel: '遇見',
+              tabBarIcon: ({ focused }) => <TabIcon emoji="💕" focused={focused} />,
             }}
           />
           <Tab.Screen
