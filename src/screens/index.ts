@@ -10,3 +10,4 @@ export { InfoScreen } from './InfoScreen';
 export { ShopScreen } from './ShopScreen';
 export { ServicesScreen } from './ServicesScreen';
 export { SuperAppScreen } from './SuperAppScreen';
+export { InstagramScreen } from './InstagramScreen';
