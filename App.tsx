@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { HomeScreen, TransportScreen, ExploreScreen, ChatScreen, SettingsScreen, ForumScreen, NewsScreen, MarketScreen } from './src/screens';
+import { HomeScreen, TransportScreen, InfoScreen, ChatScreen, SettingsScreen } from './src/screens';
 import { colors } from './src/theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -47,11 +47,11 @@ export default function App() {
             }}
           />
           <Tab.Screen
-            name="Explore"
-            component={ExploreScreen}
+            name="Info"
+            component={InfoScreen}
             options={{
-              tabBarLabel: '探索',
-              tabBarIcon: ({ focused }) => <TabIcon emoji="📍" focused={focused} />,
+              tabBarLabel: '資訊',
+              tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} />,
             }}
           />
           <Tab.Screen
@@ -60,30 +60,6 @@ export default function App() {
             options={{
               tabBarLabel: '金龍',
               tabBarIcon: ({ focused }) => <TabIcon emoji="🐉" focused={focused} />,
-            }}
-          />
-          <Tab.Screen
-            name="Forum"
-            component={ForumScreen}
-            options={{
-              tabBarLabel: '論壇',
-              tabBarIcon: ({ focused }) => <TabIcon emoji="💬" focused={focused} />,
-            }}
-          />
-          <Tab.Screen
-            name="News"
-            component={NewsScreen}
-            options={{
-              tabBarLabel: '資訊',
-              tabBarIcon: ({ focused }) => <TabIcon emoji="📰" focused={focused} />,
-            }}
-          />
-          <Tab.Screen
-            name="Market"
-            component={MarketScreen}
-            options={{
-              tabBarLabel: '街市',
-              tabBarIcon: ({ focused }) => <TabIcon emoji="🛒" focused={focused} />,
             }}
           />
           <Tab.Screen
