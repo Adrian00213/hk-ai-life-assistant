@@ -17,3 +17,4 @@ export {
 } from './notificationService';
 export { VoiceInputService, voiceInputService } from './voiceInputService';
 export { HONG_KONG_WET_MARKETS, DAILY_PRICES, MARKET_EVENTS, MARKET_TYPE_CONFIG, formatPrice, formatTrend } from './marketApi';
+export { PRODUCTS, FLASH_DEALS, CATEGORIES, getStreamer, formatPrice as shopFormatPrice } from './shoppingApi';
