@@ -9,3 +9,4 @@ export { MarketScreen } from './MarketScreen';
 export { InfoScreen } from './InfoScreen';
 export { ShopScreen } from './ShopScreen';
 export { ServicesScreen } from './ServicesScreen';
+export { SuperAppScreen } from './SuperAppScreen';
