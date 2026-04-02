@@ -16,3 +16,4 @@ export {
   requestNotificationPermission 
 } from './notificationService';
 export { VoiceInputService, voiceInputService } from './voiceInputService';
+export { HONG_KONG_WET_MARKETS, DAILY_PRICES, MARKET_EVENTS, MARKET_TYPE_CONFIG, formatPrice, formatTrend } from './marketApi';

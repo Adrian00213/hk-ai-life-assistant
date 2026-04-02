@@ -5,3 +5,4 @@ export { ChatScreen } from './ChatScreen';
 export { SettingsScreen } from './SettingsScreen';
 export { ForumScreen } from './ForumScreen';
 export { NewsScreen } from './NewsScreen';
+export { MarketScreen } from './MarketScreen';
