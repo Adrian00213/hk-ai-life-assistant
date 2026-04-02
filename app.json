@@ -29,12 +29,8 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "bundler": "metro",
-      "output": "static"
+      "bundler": "metro"
     },
-    "plugins": [
-      "expo-router"
-    ],
     "extra": {
       "eas": {
         "projectId": "hk-ai-life-assistant"
