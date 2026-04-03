@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>左右幫 - 登入/註冊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .close-btn {
+            font-size: 28px;
+            color: #333;
+        }
+        
+        .header-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .placeholder {
+            width: 30px;
+        }
+        
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .logo-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FF6B6B;
+        }
+        
+        .logo-slogan {
+            font-size: 14px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        /* Tab */
+        .tab-section {
+            display: flex;
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 16px;
+            color: #999;
+            border-bottom: 2px solid #eee;
+            cursor: pointer;
+        }
+        
+        .tab.active {
+            color: #FF6B6B;
+            border-bottom-color: #FF6B6B;
+        }
+        
+        /* Form */
+        .form-section {
+            padding: 0 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #FF6B6B;
+        }
+        
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-with-btn .form-input {
+            flex: 1;
+        }
+        
+        .btn-send-code {
+            padding: 14px 15px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #FF6B6B;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .btn-send-code:disabled {
+            color: #999;
+        }
+        
+        /* Password Input */
+        .password-input {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+        
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .checkbox-group input {
+            width: 20px;
+            height: 20px;
+            accent-color: #FF6B6B;
+        }
+        
+        .checkbox-group label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .checkbox-group a {
+            color: #FF6B6B;
+            text-decoration: none;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-google {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #999;
+            font-size: 13px;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+        
+        .divider span {
+            padding: 0 15px;
+        }
+        
+        /* Footer */
+        .form-footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .form-footer a {
+            color: #FF6B6B;
+            text-decoration: none;
+        }
+        
+        /* Success Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 300px;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 70px;
+            margin-bottom: 15px;
+        }
+        
+        .success-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .success-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        /* Code Input */
+        .code-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .code-input {
+            width: 45px;
+            height: 50px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 24px;
+            text-align: center;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #FF6B6B;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="close-btn">×</div>
+        <div class="header-title">登入</div>
+        <div class="placeholder"></div>
+    </div>
+    
+    <!-- Logo -->
+    <div class="logo-section">
+        <div class="logo">🤝</div>
+        <div class="logo-text">左右幫</div>
+        <div class="logo-slogan">左鄰右里，幫幫手</div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tab-section">
+        <div class="tab active" id="tab-login">登入</div>
+        <div class="tab" id="tab-register" onclick="switchTab('register')">註冊</div>
+    </div>
+    
+    <!-- Login Form -->
+    <div class="form-section" id="login-form">
+        <div class="form-group">
+            <label class="form-label">手機號碼 / 電郵</label>
+            <input type="text" class="form-input" placeholder="請輸入手機號碼或電郵">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">密碼</label>
+            <div class="password-input">
+                <input type="password" class="form-input" id="password" placeholder="請輸入密碼">
+                <span class="toggle-password" onclick="togglePassword()">👁</span>
+            </div>
+        </div>
+        
+        <div style="text-align: right; margin-bottom: 20px;">
+            <a href="#" style="color: #FF6B6B; font-size: 14px; text-decoration: none;">忘記密碼？</a>
+        </div>
+        
+        <button class="btn-primary" onclick="showSuccess()">登入</button>
+        
+        <div class="divider"><span>或</span></div>
+        
+        <button class="btn-google">
+            <span>🇬</span>
+            <span>使用 Google 繼續</span>
+        </button>
+    </div>
+    
+    <!-- Register Form -->
+    <div class="form-section" id="register-form" style="display: none;">
+        <div class="form-group">
+            <label class="form-label">手機號碼</label>
+            <div class="input-with-btn">
+                <input type="tel" class="form-input" placeholder="請輸入手機號碼">
+                <button class="btn-send-code" id="send-code-btn" onclick="sendCode()">發送驗證碼</button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">驗證碼</label>
+            <input type="text" class="form-input" placeholder="請輸入6位驗證碼">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">設定密碼</label>
+            <div class="password-input">
+                <input type="password" class="form-input" placeholder="請設定密碼（8位或以上）">
+                <span class="toggle-password">👁</span>
+            </div>
+        </div>
+        
+        <div class="checkbox-group">
+            <input type="checkbox" id="agree">
+            <label for="agree">我已閱讀並同意<a href="#">《服務條款》</a>和<a href="#">《私隱政策》</a></label>
+        </div>
+        
+        <button class="btn-primary" onclick="showSuccess()">註冊</button>
+        
+        <div class="divider"><span>或</span></div>
+        
+        <button class="btn-google">
+            <span>🇬</span>
+            <span>使用 Google 註冊</span>
+        </button>
+    </div>
+    
+    <!-- Footer -->
+    <div class="form-footer">
+        登入即表示您同意我們的<a href="#">服務條款</a>
+    </div>
+    
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="success-icon">✅</div>
+            <div class="success-title">登入成功！</div>
+            <div class="success-desc">歡迎回來！即將跳轉至首頁...</div>
+            <button class="btn-modal" onclick="closeModal()">確 定</button>
+        </div>
+    </div>
+    
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        }
+        
+        function switchTab(tab) {
+            const loginTab = document.getElementById('tab-login');
+            const registerTab = document.getElementById('tab-register');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            
+            if (tab === 'register') {
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            } else {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            }
+        }
+        
+        let countdown = 60;
+        function sendCode() {
+            const btn = document.getElementById('send-code-btn');
+            btn.disabled = true;
+            btn.textContent = `${countdown}秒後重試`;
+            
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.textContent = '發送驗證碼';
+                    countdown = 60;
+                } else {
+                    btn.textContent = `${countdown}秒後重試`;
+                }
+            }, 1000);
+            
+            alert('驗證碼已發送！');
+        }
+        
+        function showSuccess() {
+            document.getElementById('successModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('successModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

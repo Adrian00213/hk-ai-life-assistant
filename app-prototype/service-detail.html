@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>左右幫 - 服務者詳情</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 80px;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .back-btn {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .share-btn {
+            font-size: 20px;
+        }
+        
+        /* Profile Section */
+        .profile-section {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+        }
+        
+        .profile-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .profile-tags {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .profile-tag {
+            background: rgba(255,255,255,0.3);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* Verification Badge */
+        .verify-section {
+            background: white;
+            padding: 15px 20px;
+            margin: 15px;
+            border-radius: 15px;
+        }
+        
+        .verify-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .verify-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .verify-icon {
+            color: #4CAF50;
+            font-size: 18px;
+        }
+        
+        /* Services */
+        .services-section {
+            background: white;
+            padding: 15px 20px;
+            margin: 15px;
+            border-radius: 15px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .service-item:last-child {
+            border-bottom: none;
+        }
+        
+        .service-name {
+            font-size: 15px;
+            color: #333;
+        }
+        
+        .service-price {
+            font-size: 16px;
+            color: #FF6B6B;
+            font-weight: 600;
+        }
+        
+        /* Reviews */
+        .reviews-section {
+            background: white;
+            padding: 15px 20px;
+            margin: 15px;
+            border-radius: 15px;
+        }
+        
+        .review-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .review-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .review-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .review-date {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .review-stars {
+            color: #FFB800;
+            font-size: 14px;
+        }
+        
+        .review-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* Bottom Action */
+        .bottom-action {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            gap: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn-chat {
+            flex: 1;
+            background: white;
+            border: 2px solid #FF6B6B;
+            color: #FF6B6B;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-book {
+            flex: 2;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: flex-end;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 100%;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            color: #999;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .time-slot {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .time-slot.selected {
+            background: #FF6B6B;
+            color: white;
+            border-color: #FF6B6B;
+        }
+        
+        .btn-confirm {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .service-summary {
+            background: #FFF9F9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .summary-row:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            font-size: 16px;
+            color: #FF6B6B;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="back-btn">←</div>
+        <div class="header-title">服務者詳情</div>
+        <div class="share-btn">↗</div>
+    </div>
+    
+    <!-- Profile -->
+    <div class="profile-section">
+        <div class="profile-avatar">👩‍🦰</div>
+        <div class="profile-name">陳師奶</div>
+        <div class="profile-tags">
+            <span class="profile-tag">🏆 15年經驗</span>
+            <span class="profile-tag">✅ 已認證</span>
+        </div>
+        <div class="profile-stats">
+            <div class="stat-item">
+                <div class="stat-value">4.9</div>
+                <div class="stat-label">評分</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">328</div>
+                <div class="stat-label">訂單</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">98%</div>
+                <div class="stat-label">準時</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Verification -->
+    <div class="verify-section">
+        <div class="verify-title">✓ 已驗證資料</div>
+        <div class="verify-item">
+            <span class="verify-icon">✓</span>
+            <span>身份證認證</span>
+        </div>
+        <div class="verify-item">
+            <span class="verify-icon">✓</span>
+            <span>電話驗證</span>
+        </div>
+        <div class="verify-item">
+            <span class="verify-icon">✓</span>
+            <span>急救證書</span>
+        </div>
+        <div class="verify-item">
+            <span class="verify-icon">✓</span>
+            <span>無犯罪紀錄</span>
+        </div>
+    </div>
+    
+    <!-- Services -->
+    <div class="services-section">
+        <div class="section-title">提供服務</div>
+        <div class="service-item">
+            <span class="service-name">🐾 上門照顧寵物</span>
+            <span class="service-price">$200/次</span>
+        </div>
+        <div class="service-item">
+            <span class="service-name">🐕 寵物散步</span>
+            <span class="service-price">$80/次</span>
+        </div>
+        <div class="service-item">
+            <span class="service-name">🐱 寵物美容助理</span>
+            <span class="service-price">$150/次</span>
+        </div>
+        <div class="service-item">
+            <span class="service-name">🏠 上門餵食</span>
+            <span class="service-price">$100/次</span>
+        </div>
+    </div>
+    
+    <!-- Reviews -->
+    <div class="reviews-section">
+        <div class="section-title">用戶評價 (128)</div>
+        
+        <div class="review-item">
+            <div class="review-header">
+                <div class="review-user">
+                    <div class="review-avatar">👩</div>
+                    <div>
+                        <div class="review-name">李太</div>
+                        <div class="review-date">2026年3月15日</div>
+                    </div>
+                </div>
+                <div class="review-stars">⭐⭐⭐⭐⭐</div>
+            </div>
+            <div class="review-text">陳師奶好有愛心，對我隻狗好好！去旅行放心交比佢照顧，下次一定再幫襯！</div>
+        </div>
+        
+        <div class="review-item">
+            <div class="review-header">
+                <div class="review-user">
+                    <div class="review-avatar">👨</div>
+                    <div>
+                        <div class="review-name">張先生</div>
+                        <div class="review-date">2026年3月10日</div>
+                    </div>
+                </div>
+                <div class="review-stars">⭐⭐⭐⭐⭐</div>
+            </div>
+            <div class="review-text">好準時，而且會定時比我睇到狗狗嘅情況，非常細心！</div>
+        </div>
+        
+        <div class="review-item">
+            <div class="review-header">
+                <div class="review-user">
+                    <div class="review-avatar">👩</div>
+                    <div>
+                        <div class="review-name">王小姐</div>
+                        <div class="review-date">2026年3月5日</div>
+                    </div>
+                </div>
+                <div class="review-stars">⭐⭐⭐⭐</div>
+            </div>
+            <div class="review-text">服務好好，但價錢偏貴。不過物有所值，會繼續幫襯。</div>
+        </div>
+    </div>
+    
+    <!-- Bottom Action -->
+    <div class="bottom-action">
+        <button class="btn-chat">💬 查詢</button>
+        <button class="btn-book" onclick="openModal()">立即預約</button>
+    </div>
+    
+    <!-- Booking Modal -->
+    <div class="modal" id="bookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">預約服務</div>
+                <div class="modal-close" onclick="closeModal()">×</div>
+            </div>
+            
+            <div class="service-summary">
+                <div class="summary-row">
+                    <span>服務項目</span>
+                    <span>上門照顧寵物</span>
+                </div>
+                <div class="summary-row">
+                    <span>服務者</span>
+                    <span>陳師奶</span>
+                </div>
+                <div class="summary-row">
+                    <span>單價</span>
+                    <span>$200/次</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">選擇日期</label>
+                <input type="date" class="form-input" value="2026-04-05">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">選擇時段</label>
+                <div class="time-slots">
+                    <div class="time-slot">09:00</div>
+                    <div class="time-slot selected">10:00</div>
+                    <div class="time-slot">11:00</div>
+                    <div class="time-slot">14:00</div>
+                    <div class="time-slot">15:00</div>
+                    <div class="time-slot">16:00</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">聯絡電話</label>
+                <input type="tel" class="form-input" placeholder="請輸入電話號碼">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">備註</label>
+                <textarea class="form-input" rows="3" placeholder="請描述寵物名字、種類、特殊需求等..."></textarea>
+            </div>
+            
+            <div class="service-summary">
+                <div class="summary-row">
+                    <span>服務費用</span>
+                    <span>$200</span>
+                </div>
+                <div class="summary-row">
+                    <span>平台服務費</span>
+                    <span>$30</span>
+                </div>
+                <div class="summary-row">
+                    <span>總計</span>
+                    <span>$230</span>
+                </div>
+            </div>
+            
+            <button class="btn-confirm" onclick="confirmBooking()">確認預約</button>
+        </div>
+    </div>
+    
+    <script>
+        function openModal() {
+            document.getElementById('bookingModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('bookingModal').classList.remove('active');
+        }
+        
+        function confirmBooking() {
+            alert('預約成功！我們會盡快聯絡您確認詳情。');
+            closeModal();
+        }
+        
+        // Time slot selection
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('click', function() {
+                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>
